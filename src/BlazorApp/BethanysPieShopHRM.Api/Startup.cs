@@ -31,6 +31,7 @@ namespace BethanysPieShopHRM.Api
             services.AddScoped<ICountryRepository, CountryRepository>();
             services.AddScoped<IJobCategoryRepository, JobCategoryRepository>();
             services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+            services.AddScoped<IBenefitRepository, BenefitRepository>();
 
             services.AddCors(options =>
             {

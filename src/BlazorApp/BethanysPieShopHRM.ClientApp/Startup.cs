@@ -29,6 +29,7 @@ namespace BethanysPieShopHRM.ClientApp
             services.AddScoped<IEmployeeDataService, EmployeeDataService>();
             services.AddScoped<ICountryDataService, CountryDataService>();
             services.AddScoped<IJobCategoryDataService, JobCategoryDataService>();
+            services.AddScoped<IBenefitDataService, BenefitDataService>();
 
             //Spinner
             services.AddScoped<ISpinnerService, SpinnerService>();

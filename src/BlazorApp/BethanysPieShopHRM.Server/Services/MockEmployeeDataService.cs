@@ -8,11 +8,11 @@ namespace BethanysPieShopHRM.Server.Services
 {
     public class MockEmployeeDataService : IEmployeeDataService
     {
-        private List<Employee> _employees;
+        private List<EmployeeModel> _employees;
         private List<Country> _countries;
         private List<JobCategory> _jobCategories;
 
-        private IEnumerable<Employee> Employees
+        private IEnumerable<EmployeeModel> Employees
         {
             get
             {
@@ -79,7 +79,7 @@ namespace BethanysPieShopHRM.Server.Services
         {
             if (_employees == null)
             {
-                Employee e1 = new Employee
+                EmployeeModel e1 = new EmployeeModel
                 {
                     CountryId = 1,
                     MaritalStatus = MaritalStatus.Single,
@@ -99,31 +99,31 @@ namespace BethanysPieShopHRM.Server.Services
                     ExitDate = null,
                     JoinedDate = new DateTime(2015, 3, 1)
                 };
-                _employees = new List<Employee>() { e1 };
+                _employees = new List<EmployeeModel>() { e1 };
             }
         }
 
-        public async Task<IEnumerable<Employee>> GetAllEmployees()
+        public Task<IEnumerable<EmployeeModel>> GetAllEmployees()
         {
-            return await Task.Run(() => Employees);
+            return Task.Run(() => Employees);
         }
 
-        public async Task<List<Country>> GetAllCountries()
+        public Task<List<Country>> GetAllCountries()
         {
-            return await Task.Run(() => Countries);
+            return Task.Run(() => Countries);
         }
 
-        public async Task<List<JobCategory>> GetAllJobCategories()
+        public Task<List<JobCategory>> GetAllJobCategories()
         {
-            return await Task.Run(() => JobCategories);
+            return Task.Run(() => JobCategories);
         }
 
-        public async Task<Employee> GetEmployeeDetails(int employeeId)
+        public Task<EmployeeModel> GetEmployeeDetails(int employeeId)
         {
-            return await Task.Run(() => { return Employees.FirstOrDefault(e => e.EmployeeId == employeeId); });
+            return Task.Run(() => { return Employees.FirstOrDefault(e => e.EmployeeId == employeeId); });
         }
 
-        public Task<Employee> AddEmployee(Employee employee)
+        public Task<EmployeeModel> AddEmployee(EmployeeModel employee)
         {
             throw new NotImplementedException();
         }
@@ -133,7 +133,7 @@ namespace BethanysPieShopHRM.Server.Services
             throw new NotImplementedException();
         }
 
-        public Task UpdateEmployee(Employee employee)
+        public Task UpdateEmployee(EmployeeModel employee)
         {
             throw new NotImplementedException();
         }

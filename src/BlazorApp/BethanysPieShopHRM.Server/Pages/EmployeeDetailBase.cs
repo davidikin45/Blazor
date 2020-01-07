@@ -13,7 +13,7 @@ namespace BethanysPieShopHRM.Server.Pages
         public IEmployeeDataService EmployeeDataService { get; set; }
 
         [Inject]
-        public IJobCategoryDataService JobCategoryDataService{ get; set; }
+        public IJobCategoryDataService JobCategoryDataService { get; set; }
 
         [Parameter]
         public string EmployeeId { get; set; }
@@ -21,8 +21,8 @@ namespace BethanysPieShopHRM.Server.Pages
         public List<Marker> MapMarkers { get; set; } = new List<Marker>();
 
         protected string JobCategory = string.Empty;
-       
-        public Employee Employee { get; set; } = new Employee();
+
+        public EmployeeModel Employee { get; set; } = new EmployeeModel();
 
         protected override async Task OnInitializedAsync()
         {

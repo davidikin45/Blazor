@@ -30,7 +30,7 @@ namespace BethanysPieShopHRM.Api.Controllers
         }
 
         [HttpPost]
-        public IActionResult CreateEmployee([FromBody] Employee employee)
+        public IActionResult CreateEmployee([FromBody] EmployeeModel employee)
         {
             if (employee == null)
                 return BadRequest();
@@ -49,7 +49,7 @@ namespace BethanysPieShopHRM.Api.Controllers
         }
 
         [HttpPut]
-        public IActionResult UpdateEmployee([FromBody] Employee employee)
+        public IActionResult UpdateEmployee([FromBody] EmployeeModel employee)
         {
             if (employee == null)
                 return BadRequest();

@@ -106,6 +106,16 @@ namespace BethanysPieShopHRM.ServerApp
                 AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip
             });
 
+            services.AddHttpClient<IBenefitDataService, BenefitDataService>(client =>
+            {
+                client.BaseAddress = new Uri("https://localhost:44340/");
+            })
+           .AddHttpMessageHandler<AuthorizationJwtProxyHttpHandler>()
+           .ConfigurePrimaryHttpMessageHandler(handler => new HttpClientHandler()
+           {
+               AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip
+           });
+
             //Spinner
             services.AddScoped<ISpinnerService, SpinnerService>();
         }

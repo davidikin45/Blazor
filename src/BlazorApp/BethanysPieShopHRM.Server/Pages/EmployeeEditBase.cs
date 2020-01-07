@@ -20,14 +20,15 @@ namespace BethanysPieShopHRM.Server.Pages
         [Inject]
         public IJobCategoryDataService JobCategoryDataService { get; set; }
 
-        [Inject] public NavigationManager NavigationManager { get; set; }
+        [Inject]
+        public NavigationManager NavigationManager { get; set; }
 
         [Parameter]
         public string EmployeeId { get; set; }
 
         public InputText LastNameInputText { get; set; }
 
-        public Employee Employee { get; set; } = new Employee();
+        public EmployeeModel Employee { get; set; } = new EmployeeModel();
 
         //needed to bind to select to value
         protected string CountryId = string.Empty;
@@ -52,7 +53,7 @@ namespace BethanysPieShopHRM.Server.Pages
             if (employeeId == 0) //new employee is being created
             {
                 //add some defaults
-                Employee = new Employee { CountryId = 1, JobCategoryId = 1, BirthDate = DateTime.Now, JoinedDate = DateTime.Now };
+                Employee = new EmployeeModel { CountryId = 1, JobCategoryId = 1, BirthDate = DateTime.Now, JoinedDate = DateTime.Now };
             }
             else
             {
@@ -114,4 +115,5 @@ namespace BethanysPieShopHRM.Server.Pages
             NavigationManager.NavigateTo("/employeeoverview");
         }
     }
+
 }

@@ -12,6 +12,8 @@
 * Add System.ComponentModel.Annotations for validation attributes and use <DataAnnotationsValidator /> and <ValidationSummary />
 * StateHasChanged() triggers rerender
 * JavaScript interop by injecting IJSRuntime JsRuntime
+* Use public RenderFragment ChildContent { get; set; } for child content
+* RenderFragment is html to be rendered
 
 ## Server-side
 * Small download
@@ -113,7 +115,7 @@ public class DummyEmailSender : IEmailSender
 @inherits EmployeeDetailBase
 
 <h1>@EmployeeId</h1>
-
+<p>@ChildContent</p>
 ```
 
 ```
@@ -130,6 +132,9 @@ public class EmployeeDetailBase : ComponentBase
 		
 		[Parameter]
         public string EmployeeId { get; set; }
+		
+		[Parameter]
+        public RenderFragment ChildContent { get; set; }
 		
 		protected override Task OnInitializedAsync()
         {
@@ -157,6 +162,10 @@ services.AddServerSideBlazor().AddCircuitOptions(options => { options.DetailedEr
 * InputSelect
 * InputData
 * InputCheckbox
+
+## Events
+* @onclick
+
 
 ## Pluralsight Courses
 * [Blazor: Getting Started](https://app.pluralsight.com/library/courses/getting-started-blazor/table-of-contents)
