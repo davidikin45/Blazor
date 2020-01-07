@@ -21,7 +21,63 @@
 * No offline support
 * Network delay
 * Scalability, although not a big problem
+
+## Server-side security
 * SignalR connection kept open
+* Cookie authentication allows existing user credentials to flow to signalR connections
+* @attribute [Authorize(Policy = BethanysPieShopHRM.Shared.Policies.CanManageEmployees )] on pages and  <AuthorizeView Policy="@BethanysPieShopHRM.Shared.Policies.CanManageEmployees"> for child components within page
+* ASP.NET Core Identity Deep Dive
+* Scaffold Identity Add > New Scaffolded Item > Identity and add StatusMessage, RegisterConfirmation, ConfirmEmail and Register. Best to add this to IDP and include IdentityServer4.AspNetIdentity
+* Change services.AddControllersWithViews() > services.AddMvc()
+* Add  endpoints.MapControllers(), endpoints.MapDefaultControllerRoute(), endpoints.MapRazorPages()
+* Copy over AccountController and ExternalController from https://github.com/IdentityServer/IdentityServer4.Templates/tree/master/src/IdentityServer4AspNetIdentity/Quickstart/Account
+* OpenID Connect extends and supersedes OAuth2
+* Securing ASP.NET Core 2 with OAuth2 and OpenID Connect
+* Either use Authorization Code + PKCE or Hybrid
+* Microsoft.AspNetCore.Authentication.OpenIdConnect
+* IdentityModel
+* IdentityServer4.AccessTokenValidation
+* Automatically logs into app if logged into identity server under any user 
+* Enabling Windows Authentication on IDP allows windows users to login
+* Attribute-based Access Control (ABAC) can have alot more complex rules than Role-based Access Control (RBAC)
+* Add Microsoft.AspNetCore.Authorization to shared project so authorization policies can be used in Blazor and API
+
+```
+[assembly: HostingStartup(typeof(IDP.Areas.Identity.IdentityHostingStartup))]
+namespace IDP.Areas.Identity
+{
+    public class IdentityHostingStartup : IHostingStartup
+    {
+        public void Configure(IWebHostBuilder builder)
+        {
+            builder.ConfigureServices((context, services) => {
+                services.AddDbContext<IdentityContext>(options =>
+                    options.UseSqlite(
+                        context.Configuration.GetConnectionString("IdentityContextConnection")));
+
+                //services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+                //    .AddEntityFrameworkStores<IdentityContext>();
+
+                 services.AddIdentity<ApplicationUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
+                .AddEntityFrameworkStores<IdentityContext>()
+                .AddDefaultTokenProviders();//Account Activation or Change Password Tokens
+				
+				 services.AddTransient<IEmailSender, DummyEmailSender>();
+            });
+        }
+    }
+}
+```
+
+```
+public class DummyEmailSender : IEmailSender
+{
+	public Task SendEmailAsync(string email, string subject, string htmlMessage)
+	{
+		return Task.CompletedTask;
+	}
+}
+```
 
 ## Client-side
 * Runs on all modern browsers
@@ -29,6 +85,7 @@
 * SPA user experience
 * Older browsers might not be supported
 * Initial app downloaded is larger
+* HttpClient, EF Core
 
 ## Example Mixed
 ```
@@ -105,3 +162,4 @@ services.AddServerSideBlazor().AddCircuitOptions(options => { options.DetailedEr
 * [Blazor: Getting Started](https://app.pluralsight.com/library/courses/getting-started-blazor/table-of-contents)
 * [Creating Blazor Components](https://app.pluralsight.com/library/courses/creating-blazor-components/table-of-contents)
 * [Authentication and Authorization in Blazor Applications](https://app.pluralsight.com/library/courses/authentication-authorization-blazor-applications/table-of-contents)
+* [Using HttpClient to Consume APIs in .NET Core](https://app.pluralsight.com/library/courses/httpclient-consume-apis-dotnet-core/table-of-contents)

@@ -1,4 +1,6 @@
 using BethanysPieShopHRM.Api.Models;
+using IdentityServer4.AccessTokenValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -36,7 +38,25 @@ namespace BethanysPieShopHRM.Api
             });
 
             services.AddControllers();
-                //.AddJsonOptions(options => options.JsonSerializerOptions.ca);
+            //.AddJsonOptions(options => options.JsonSerializerOptions.ca);
+
+            //Remote JWT Authentication
+            services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
+                .AddIdentityServerAuthentication(options =>
+                {
+                    options.Authority = "https://localhost:44333/";
+                    options.ApiName = "bethanyspieshophrapi";
+                });
+
+            services.AddAuthorization(options =>
+            {
+                //ALL Endpoints which dont have authorization defined!
+                options.FallbackPolicy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
+
+                options.AddPolicy(
+                   BethanysPieShopHRM.Shared.Policies.CanManageEmployees,
+                   BethanysPieShopHRM.Shared.Policies.CanManageEmployeesPolicy());
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -50,6 +70,8 @@ namespace BethanysPieShopHRM.Api
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseAuthentication();
 
             app.UseAuthorization();
 

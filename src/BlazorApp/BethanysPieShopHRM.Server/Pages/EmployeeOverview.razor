@@ -1,5 +1,6 @@
 ﻿@page "/employeeoverview"
 @inherits EmployeeOverviewBase
+@attribute [Authorize(Policy = BethanysPieShopHRM.Shared.Policies.CanManageEmployees)]
 
 <h1 class="page-title">All employees</h1>
 
@@ -8,7 +9,7 @@
     <p><em>Loading...</em></p>
 }
 else
-{
+{ 
     <table class="table">
         <thead>
             <tr>

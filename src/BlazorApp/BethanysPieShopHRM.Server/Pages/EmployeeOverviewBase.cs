@@ -11,8 +11,8 @@ namespace BethanysPieShopHRM.Server.Pages
 {
     public class EmployeeOverviewBase: ComponentBase
     {
-        //[Inject]
-        //public IHttpClientFactory _clientFactory { get; set; }
+        //[CascadingParameter]
+        //public Task<AuthenticationState> AuthenticationStateTask { get; set; }
 
         [Inject]
         public IEmployeeDataService EmployeeDataService { get; set; }
