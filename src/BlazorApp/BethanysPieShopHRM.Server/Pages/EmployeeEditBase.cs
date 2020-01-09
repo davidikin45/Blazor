@@ -1,16 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using BethanysPieShopHRM.Server.Services;
+﻿using BethanysPieShopHRM.Server.Services;
 using BethanysPieShopHRM.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace BethanysPieShopHRM.Server.Pages
 {
     public class EmployeeEditBase : ComponentBase
     {
+        [Inject]
+        public AppDbContext AppDbContext { get; set; }
+
         [Inject]
         public IEmployeeDataService EmployeeDataService { get; set; }
 
@@ -50,6 +53,8 @@ namespace BethanysPieShopHRM.Server.Pages
 
             int.TryParse(EmployeeId, out var employeeId);
 
+  
+
             if (employeeId == 0) //new employee is being created
             {
                 //add some defaults
@@ -57,7 +62,7 @@ namespace BethanysPieShopHRM.Server.Pages
             }
             else
             {
-                Employee = await EmployeeDataService.GetEmployeeDetails(int.Parse(EmployeeId));
+                Employee = (await EmployeeDataService.GetEmployeeDetails(int.Parse(EmployeeId)));
             }
 
             CountryId = Employee.CountryId.ToString();
@@ -72,6 +77,14 @@ namespace BethanysPieShopHRM.Server.Pages
             if (Employee.EmployeeId == 0) //new
             {
                 var addedEmployee = await EmployeeDataService.AddEmployee(Employee);
+
+                var newEmployee = new Employee();
+                Employee.UpdateEntity(newEmployee);
+
+                AppDbContext.Add(newEmployee);
+
+                await AppDbContext.SaveChangesAsync();
+
                 if (addedEmployee != null)
                 {
                     StatusClass = "alert-success";

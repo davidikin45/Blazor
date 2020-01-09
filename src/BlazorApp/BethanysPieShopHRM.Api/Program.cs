@@ -11,6 +11,7 @@ namespace BethanysPieShopHRM.Api
         {
             var host = CreateHostBuilder(args).Build();
 
+            //Seed Data
             using (var scope = host.Services.CreateScope())
             {
                 using var context = scope.ServiceProvider.GetService<AppDbContext>();

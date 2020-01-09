@@ -17,7 +17,7 @@ namespace BethanysPieShopHRM.Api.Controllers
         }
 
         [HttpGet]
-        [Authorize(Policy = BethanysPieShopHRM.Shared.Policies.CanManageEmployees)]
+        //[Authorize(Policy = BethanysPieShopHRM.Shared.Policies.CanManageEmployees)]
         public IActionResult GetAllEmployees()
         {
             return Ok(_employeeRepository.GetAllEmployees());

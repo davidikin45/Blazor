@@ -1,6 +1,6 @@
 using BethanysPieShopHRM.Api.Models;
+using FileContextCore;
 using IdentityServer4.AccessTokenValidation;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -22,11 +22,23 @@ namespace BethanysPieShopHRM.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            //services.AddDbContext<AppDbContext>(options => options.UseInMemoryDatabase(databaseName: "BethanysPieShopHRM"));
+            //var context = new AppDbContext(new DbContextOptionsBuilder<AppDbContext>().UseFileContextDatabase(databaseName: "db").Options);
+            //context.Employees.Add(new Employee() { Gender = Gender.Male });
+            //context.SaveChanges();
+
+            //services.AddDbContext<AppDbContext>(options =>
+            //{
+            //    options.UseInMemoryDatabase(databaseName: "BethanysPieShopHRM");
+            //});
 
             //services.AddDbContext<AppDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("SqlServerConnection")));
 
-            services.AddDbContext<AppDbContext>(options => options.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
+            services.AddDbContext<AppDbContext>(options =>
+            {
+                options.UseSqlite(Configuration.GetConnectionString("DefaultConnection"));
+            });
+
+            //services.AddDbContext<AppDbContext>(options => options.UseFileContextDatabase(databaseName:"db"));
 
             services.AddScoped<ICountryRepository, CountryRepository>();
             services.AddScoped<IJobCategoryRepository, JobCategoryRepository>();
@@ -35,7 +47,7 @@ namespace BethanysPieShopHRM.Api
 
             services.AddCors(options =>
             {
-                options.AddPolicy("Open", builder => builder.AllowAnyOrigin().AllowAnyHeader());
+                options.AddPolicy("Open", builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
             });
 
             services.AddControllers();
@@ -52,7 +64,7 @@ namespace BethanysPieShopHRM.Api
             services.AddAuthorization(options =>
             {
                 //ALL Endpoints which dont have authorization defined!
-                options.FallbackPolicy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
+                //options.FallbackPolicy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
 
                 options.AddPolicy(
                    BethanysPieShopHRM.Shared.Policies.CanManageEmployees,
@@ -72,11 +84,11 @@ namespace BethanysPieShopHRM.Api
 
             app.UseRouting();
 
+            app.UseCors("Open");
+
             app.UseAuthentication();
 
             app.UseAuthorization();
-
-            app.UseCors("Open");
 
             app.UseEndpoints(endpoints =>
             {
