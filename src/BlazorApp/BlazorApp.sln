@@ -17,6 +17,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BethanysPieShopHRM.ClientAp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Marvin.IDP", "Marvin.IDP\Marvin.IDP.csproj", "{703CACE6-80E2-4047-9076-915D6CAE907B}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BethanysPieShopHRM.ClientAppHosted", "BethanysPieShopHRM.ClientAppHosted\BethanysPieShopHRM.ClientAppHosted.csproj", "{5CE7B795-8CCF-4DBF-A98C-65FDBEC7C3C2}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BethanysPieShopHRM.ClientOIDC", "BethanysPieShopHRM.ClientOIDC\BethanysPieShopHRM.ClientOIDC.csproj", "{81B15E39-BD6A-45AB-915C-503FB9C0F575}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +55,14 @@ Global
 		{703CACE6-80E2-4047-9076-915D6CAE907B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{703CACE6-80E2-4047-9076-915D6CAE907B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{703CACE6-80E2-4047-9076-915D6CAE907B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5CE7B795-8CCF-4DBF-A98C-65FDBEC7C3C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5CE7B795-8CCF-4DBF-A98C-65FDBEC7C3C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5CE7B795-8CCF-4DBF-A98C-65FDBEC7C3C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5CE7B795-8CCF-4DBF-A98C-65FDBEC7C3C2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{81B15E39-BD6A-45AB-915C-503FB9C0F575}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{81B15E39-BD6A-45AB-915C-503FB9C0F575}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{81B15E39-BD6A-45AB-915C-503FB9C0F575}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{81B15E39-BD6A-45AB-915C-503FB9C0F575}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

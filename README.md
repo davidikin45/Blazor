@@ -14,6 +14,7 @@
 * JavaScript interop by injecting IJSRuntime JsRuntime
 * Use public RenderFragment ChildContent { get; set; } for child content
 * RenderFragment is html to be rendered
+* Blazor doesn't support complex data model property validation. Install Microsoft.AspNetCore.Blazor.DataAnnotations.Validation and use [ValidateComplexType]
 
 ## Server-side
 * Small download
@@ -23,6 +24,16 @@
 * No offline support
 * Network delay
 * Scalability, although not a big problem
+
+## Server-side DI
+* Transient is scoped to the lifetime of the Blazor component which only occurs on navigation. Use IServiceScopeFactory for true transient.
+* Scoped is per application instance.
+* Singleton is per application.
+
+## Client-side DI
+* Transient is scoped to the lifetime of the Blazor component which only occurs on navigation. Use IServiceScopeFactory for true transient.
+* Scoped is per application instance.
+* Singleton is per application instance.
 
 ## Server-side security
 * SignalR connection kept open

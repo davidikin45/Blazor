@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace BethanysPieShopHRM.Api
 {
@@ -53,10 +54,14 @@ namespace BethanysPieShopHRM.Api
             services.AddControllers();
             //.AddJsonOptions(options => options.JsonSerializerOptions.ca);
 
-            //Remote JWT Authentication
+            //JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+
+            //JWT Authentication - Access Token Validation. Handles Reference + JWT
+            //https://developer.okta.com/blog/2018/03/23/token-authentication-aspnetcore-complete-guide
             services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
                 .AddIdentityServerAuthentication(options =>
                 {
+                    options.SaveToken = true; //var accessToken = await HttpContext.GetTokenAsync("access_token"); //forward the JWT in an outgoing request.
                     options.Authority = "https://localhost:44333/";
                     options.ApiName = "bethanyspieshophrapi";
                 });

@@ -22,12 +22,13 @@
 </head>
 <body>
     <app>
-        @(await Html.RenderComponentAsync<ServerApp>(RenderMode.ServerPrerendered))
+        @(await Html.RenderComponentAsync<ServerAppWithAuth>(RenderMode.ServerPrerendered))
     </app>
 
     <script src="_framework/blazor.server.js"></script>
 
     <script src="_content/BethanysPieShopHRM.ComponentsLibrary/leaflet/leaflet.js"></script>
     <script src="_content/BethanysPieShopHRM.ComponentsLibrary/deliveryMap.js"></script>
+    <script src="_content/BethanysPieShopHRM.Server/jsInterop.js"></script>
 </body>
 </html>

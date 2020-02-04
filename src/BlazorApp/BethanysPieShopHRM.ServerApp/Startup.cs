@@ -6,6 +6,7 @@ using System.Net.Http;
 using BethanysPieShopHRM.Server;
 using BethanysPieShopHRM.Server.Interceptors;
 using BethanysPieShopHRM.Server.Services;
+using Blazor.IndexedDB.Framework;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -33,6 +34,10 @@ namespace BethanysPieShopHRM.ServerApp
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            //Blazor.IndexedDB.Framework
+            services.AddSingleton<IIndexedDbFactory, IndexedDbFactory>();
+            services.AddSingleton<AppIndexedDb>(sp => sp.GetRequiredService<IIndexedDbFactory>().Create<AppIndexedDb>().Result);
+
             services.AddDbContext<AppDbContext>(options =>
             {
                 options.UseInMemoryDatabase(databaseName: "db");
@@ -47,13 +52,17 @@ namespace BethanysPieShopHRM.ServerApp
 
             //services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(); //Login
             //services.AddAuthentication(IdentityConstants.ApplicationScheme).AddCookie(); //ASP.NET Identity Login
-
+            
             //OpenIdConnect
+            //https://www.scottbrady91.com/OpenID-Connect/ASPNET-Core-using-Proof-Key-for-Code-Exchange-PKCE
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
             services.AddAuthentication(options => {
                 options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
-            }).AddCookie(CookieAuthenticationDefaults.AuthenticationScheme)
+            }).AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options => {
+                options.ExpireTimeSpan = TimeSpan.FromDays(14); //When persist is used.
+                options.SlidingExpiration = true;
+            })
                .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme,
                 options =>
                 {
@@ -61,16 +70,16 @@ namespace BethanysPieShopHRM.ServerApp
                     options.ClientId = "bethanyspieshophr";
                     options.ClientSecret = "108B7B4F-BEFC-4DD2-82E1-7F025F0F75D0";
                     options.ResponseType = "code id_token"; //hybrid
-                    options.Scope.Add("openid");
-                    options.Scope.Add("profile");
-                    options.Scope.Add("email");
-                    options.Scope.Add("bethanyspieshophrapi");
-                    options.Scope.Add("country");
-                    options.ClaimActions.MapUniqueJsonKey("country", "country");
+                    options.Scope.Add("openid");//access_token
+                    options.Scope.Add("profile");//access_token
+                    options.Scope.Add("email");//access_token
+                    options.Scope.Add("bethanyspieshophrapi");//access_token
+                    options.Scope.Add("country");//access_token
+                    options.ClaimActions.MapUniqueJsonKey("country", "country");//id_token > User
                     //options.CallbackPath = ...
                     options.SaveTokens = true; 
                     options.GetClaimsFromUserInfoEndpoint = true;
-
+             
                 });
 
             //Policies stored in shared assembly so can be accessed by Blazor and API
@@ -84,46 +93,22 @@ namespace BethanysPieShopHRM.ServerApp
             //Blazor > Server > API
             services.AddTransient<AuthorizationJwtProxyHttpHandler>();
 
-            //services.AddScoped<IEmployeeDataService, MockEmployeeDataService>();
-            services.AddHttpClient<IEmployeeDataService, EmployeeDataService>(client =>
-            {
-                client.BaseAddress = new Uri("https://localhost:44340/");
-            })
-            .AddHttpMessageHandler<AuthorizationJwtProxyHttpHandler>()
-            .ConfigurePrimaryHttpMessageHandler(handler => new HttpClientHandler()
-            {
-                AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip
-            });
-
-            services.AddHttpClient<ICountryDataService, CountryDataService>(client =>
-            {
-                client.BaseAddress = new Uri("https://localhost:44340/");
-            })
-            .AddHttpMessageHandler<AuthorizationJwtProxyHttpHandler>()
-            .ConfigurePrimaryHttpMessageHandler(handler => new HttpClientHandler()
-            {
-                AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip
-            });
-
-            services.AddHttpClient<IJobCategoryDataService, JobCategoryDataService>(client =>
-            {
-                client.BaseAddress = new Uri("https://localhost:44340/");
-            })
-            .AddHttpMessageHandler<AuthorizationJwtProxyHttpHandler>()
-            .ConfigurePrimaryHttpMessageHandler(handler => new HttpClientHandler()
-            {
-                AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip
-            });
-
-            services.AddHttpClient<IBenefitDataService, BenefitDataService>(client =>
+            /// --- Blazor Server > API --- ///
+            services.AddHttpClient("api", client =>
             {
                 client.BaseAddress = new Uri("https://localhost:44340/");
             })
            .AddHttpMessageHandler<AuthorizationJwtProxyHttpHandler>()
            .ConfigurePrimaryHttpMessageHandler(handler => new HttpClientHandler()
            {
-               AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip
+               AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip | DecompressionMethods.Brotli
            });
+
+            //services.AddScoped<IEmployeeDataService, MockEmployeeDataService>();
+            services.AddScoped<IEmployeeDataService>(sp => new EmployeeDataService(sp.GetService<IHttpClientFactory>().CreateClient("api")));
+            services.AddScoped<ICountryDataService>(sp => new CountryDataService(sp.GetService<IHttpClientFactory>().CreateClient("api")));
+            services.AddScoped<IJobCategoryDataService>(sp => new JobCategoryDataService(sp.GetService<IHttpClientFactory>().CreateClient("api")));
+            services.AddScoped<IBenefitDataService>(sp => new BenefitDataService(sp.GetService<IHttpClientFactory>().CreateClient("api")));
 
             //Spinner
             services.AddScoped<ISpinnerService, SpinnerService>();

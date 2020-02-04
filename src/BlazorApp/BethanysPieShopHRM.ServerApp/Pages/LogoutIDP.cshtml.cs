@@ -14,6 +14,7 @@ namespace BethanysPieShopHRM.Server.Pages
     {
         public async Task OnGetAsync()
         {
+            //Actually what happens is HttpContext.SignOutAsync("oidc"); sets a default ActionResult(Which is to redirect to the OpenIdConnect provider to complete the sign -out
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             await HttpContext.SignOutAsync(OpenIdConnectDefaults.AuthenticationScheme);
         }

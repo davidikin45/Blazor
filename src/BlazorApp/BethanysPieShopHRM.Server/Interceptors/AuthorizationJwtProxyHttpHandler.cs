@@ -10,6 +10,9 @@ using System.Threading.Tasks;
 namespace BethanysPieShopHRM.Server.Interceptors
 {
     //Spa > Server > API
+    //Spa > API > API
+
+    //As long as OpenIdConnectOptions.SaveTokens or JwtBearerOptions.SaveTokens or IdentityServerAuthenticationOptions.SaveTokens = true
     public class AuthorizationJwtProxyHttpHandler : DelegatingHandler
     {
         private readonly string accessToken;

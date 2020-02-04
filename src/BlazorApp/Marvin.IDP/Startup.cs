@@ -4,12 +4,14 @@
 
 using IdentityServer4;
 using IdentityServer4.Quickstart.UI;
+using IdentityServer4.Services;
 using Marvin.IDP.Areas.Identity.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System.Threading.Tasks;
 
 namespace Marvin.IDP
 {
@@ -51,7 +53,13 @@ namespace Marvin.IDP
                 options.Events.RaiseFailureEvents = true;
                 options.Events.RaiseSuccessEvents = true;
             }).AddAspNetIdentity<ApplicationUser>();
-               //.AddTestUsers(TestUsers.Users);
+            //.AddTestUsers(TestUsers.Users);
+
+
+            services.AddCors(options =>
+            {
+                options.AddPolicy("Open", builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
+            });
 
             // in-memory, code config
             builder.AddInMemoryIdentityResources(Config.Ids);
