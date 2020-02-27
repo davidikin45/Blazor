@@ -40,6 +40,7 @@
 * Cookie authentication allows existing user credentials to flow to signalR connections
 * @attribute [Authorize(Policy = BethanysPieShopHRM.Shared.Policies.CanManageEmployees )] on pages and  <AuthorizeView Policy="@BethanysPieShopHRM.Shared.Policies.CanManageEmployees"> for child components within page
 * ASP.NET Core Identity Deep Dive
+* Install [IdentityServer4.Quickstart.UI](https://github.com/IdentityServer/IdentityServer4.Quickstart.UI)
 * Scaffold Identity Add > New Scaffolded Item > Identity and add StatusMessage, RegisterConfirmation, ConfirmEmail and Register. Best to add this to IDP and include IdentityServer4.AspNetIdentity
 * Change services.AddControllersWithViews() > services.AddMvc()
 * Add  endpoints.MapControllers(), endpoints.MapDefaultControllerRoute(), endpoints.MapRazorPages()
