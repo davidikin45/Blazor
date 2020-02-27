@@ -13,15 +13,15 @@ namespace BethanysPieShopHRM.Server.Interceptors
     //Spa > API > API
 
     //As long as OpenIdConnectOptions.SaveTokens or JwtBearerOptions.SaveTokens or IdentityServerAuthenticationOptions.SaveTokens = true
-    public class AuthorizationJwtProxyHttpHandler : DelegatingHandler
+    public class BearerHttpHandler : DelegatingHandler
     {
         private readonly string accessToken;
-        public AuthorizationJwtProxyHttpHandler(IHttpContextAccessor httpContextAccessor)
+        public BearerHttpHandler(IHttpContextAccessor httpContextAccessor)
         {
             accessToken = httpContextAccessor.HttpContext.GetTokenAsync("access_token").GetAwaiter().GetResult();
         }
 
-        public AuthorizationJwtProxyHttpHandler(HttpMessageHandler innerHandler, IHttpContextAccessor httpContextAccessor)
+        public BearerHttpHandler(HttpMessageHandler innerHandler, IHttpContextAccessor httpContextAccessor)
             : base(innerHandler)
         {
             accessToken = httpContextAccessor.HttpContext.GetTokenAsync("access_token").GetAwaiter().GetResult();

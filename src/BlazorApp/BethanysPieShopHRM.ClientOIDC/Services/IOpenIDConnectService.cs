@@ -18,6 +18,8 @@ namespace BethanysPieShopHRM.ClientOIDC.Services
 
         Task<IEnumerable<Claim>> GetUserInfoAsync(string accessToken);
 
-        Task RevokeAccess(string accessToken, string refreshToken = null);
+        Task RevokeAccessAsync(string accessToken, string refreshToken = null);
+
+        Task<(string AccessToken, DateTime Expiry, string RefreshToken, string IdentityToken)> RenewTokensAsync(string refreshToken);
     }
 }

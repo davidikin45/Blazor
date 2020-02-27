@@ -61,7 +61,8 @@ namespace BethanysPieShopHRM.ClientOIDC.Services
         {
             await LoadEndpointsAsync();
 
-            var response = await _httpClient.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest() {
+            var response = await _httpClient.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest()
+            {
                 Address = tokenEndpoint,
                 ClientId = clientId,
                 ClientSecret = clientSecret,
@@ -109,7 +110,7 @@ namespace BethanysPieShopHRM.ClientOIDC.Services
 
             var url = ru.CreateEndSessionUrl(
                 idTokenHint: idTokenHint,
-                postLogoutRedirectUri : postLogoutRedirectUri);
+                postLogoutRedirectUri: postLogoutRedirectUri);
 
             return url;
         }
@@ -158,9 +159,10 @@ namespace BethanysPieShopHRM.ClientOIDC.Services
         {
             await LoadEndpointsAsync();
 
-            var response = await _httpClient.GetUserInfoAsync(new UserInfoRequest(){ 
+            var response = await _httpClient.GetUserInfoAsync(new UserInfoRequest()
+            {
                 Address = userInfoEndpoint,
-                Token = accessToken 
+                Token = accessToken
             });
 
             if (response.IsError)
@@ -171,15 +173,16 @@ namespace BethanysPieShopHRM.ClientOIDC.Services
             return response.Claims;
         }
 
-        public async Task<(string AccessToken, DateTime Expiry, string RefreshToken, string IdentityToken)> RenewTokens(string refreshToken)
+        public async Task<(string AccessToken, DateTime Expiry, string RefreshToken, string IdentityToken)> RenewTokensAsync(string refreshToken)
         {
             await LoadEndpointsAsync();
- 
-            var tokenResult = await _httpClient.RequestRefreshTokenAsync(new RefreshTokenRequest() { 
+
+            var tokenResult = await _httpClient.RequestRefreshTokenAsync(new RefreshTokenRequest()
+            {
                 Address = tokenEndpoint,
                 ClientId = clientId,
                 ClientSecret = clientSecret,
-                Scope = scopes,    
+                Scope = scopes,
                 RefreshToken = refreshToken
             });
 
@@ -195,7 +198,7 @@ namespace BethanysPieShopHRM.ClientOIDC.Services
             }
         }
 
-        public async Task RevokeAccess(string accessToken, string refreshToken = null)
+        public async Task RevokeAccessAsync(string accessToken, string refreshToken = null)
         {
             await LoadEndpointsAsync();
 
@@ -218,7 +221,8 @@ namespace BethanysPieShopHRM.ClientOIDC.Services
 
             if (!string.IsNullOrWhiteSpace(refreshToken))
             {
-                var revokeRefreshTokenResponse = await _httpClient.RevokeTokenAsync( new TokenRevocationRequest(){
+                var revokeRefreshTokenResponse = await _httpClient.RevokeTokenAsync(new TokenRevocationRequest()
+                {
                     Address = revocationEndpoint,
                     ClientId = clientId,
                     ClientSecret = clientSecret,

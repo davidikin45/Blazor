@@ -91,14 +91,15 @@ namespace BethanysPieShopHRM.ServerApp
             });
 
             //Blazor > Server > API
-            services.AddTransient<AuthorizationJwtProxyHttpHandler>();
+            services.AddTransient<BearerHttpHandler>();
+            services.AddTransient<AuthorizationProxyHttpHandler>();
 
             /// --- Blazor Server > API --- ///
             services.AddHttpClient("api", client =>
             {
                 client.BaseAddress = new Uri("https://localhost:44340/");
             })
-           .AddHttpMessageHandler<AuthorizationJwtProxyHttpHandler>()
+           .AddHttpMessageHandler<BearerHttpHandler>()
            .ConfigurePrimaryHttpMessageHandler(handler => new HttpClientHandler()
            {
                AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip | DecompressionMethods.Brotli
