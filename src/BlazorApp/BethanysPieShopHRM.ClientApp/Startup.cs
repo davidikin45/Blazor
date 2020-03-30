@@ -9,12 +9,14 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 
 namespace BethanysPieShopHRM.ClientApp
 {
+    //https://devblogs.microsoft.com/aspnet/blazor-webassembly-3-2-0-preview-2-release-now-available/?fbclid=IwAR0VTyCw88BSXTH-ZkYox3FCxYd91Xs-9KLwU3Wq6EpPUR7NGwtafqidNYg
     public class Startup
     {
         private Type MonoWasmHttpMessageHandlerType = Assembly.Load("WebAssembly.Net.Http").GetType("WebAssembly.Net.Http.HttpClient.WasmHttpMessageHandler");
@@ -55,6 +57,7 @@ namespace BethanysPieShopHRM.ClientApp
 
         public void ConfigureDefaultHttpClient(IServiceCollection services)
         {
+            services.AddBaseAddressHttpClient();
             services.Remove(services.Single(x => x.ServiceType == typeof(HttpClient)));
 
             /// --- Blazor WASM > API --- ///
@@ -69,7 +72,7 @@ namespace BethanysPieShopHRM.ClientApp
             //    return client;
             //});
 
-            /// --- Blazor WASM > Hosted Server --- ///
+            /// --- Blazor WASM > Hosted Server Base Address --- ///
             services.AddHttpClient("local", (serviceProvider, client) =>
             {
                 var navigationManager = serviceProvider.GetRequiredService<NavigationManager>();
@@ -96,7 +99,7 @@ namespace BethanysPieShopHRM.ClientApp
             //services.AddScoped<IJobCategoryDataService, JobCategoryDataService>();
             //services.AddScoped<IBenefitDataService, BenefitDataService>();
 
-           services.AddScoped<IEmployeeDataService>(sp => new EmployeeDataService(sp.GetService<IHttpClientFactory>().CreateClient("api")));
+            services.AddScoped<IEmployeeDataService>(sp => new EmployeeDataService(sp.GetService<IHttpClientFactory>().CreateClient("api")));
             services.AddScoped<ICountryDataService>(sp => new CountryDataService(sp.GetService<IHttpClientFactory>().CreateClient("api")));
             services.AddScoped<IJobCategoryDataService>(sp => new JobCategoryDataService(sp.GetService<IHttpClientFactory>().CreateClient("api")));
             services.AddScoped<IBenefitDataService>(sp => new BenefitDataService(sp.GetService<IHttpClientFactory>().CreateClient("api")));
@@ -104,30 +107,47 @@ namespace BethanysPieShopHRM.ClientApp
 
         public void ConfigureAuthorization(IServiceCollection services)
         {
-            services.AddHttpClient("idp", client =>
-             {
-                 client.BaseAddress = new Uri("https://localhost:44333/");
-             })
-            .ConfigurePrimaryHttpMessageHandler(sp => (HttpMessageHandler)sp.GetService(MonoWasmHttpMessageHandlerType));
-            
-            services.AddSingleton<IOpenIDConnectService>(sp =>
-            new OpenIDConnectService(
-                sp.GetService<IHttpClientFactory>().CreateClient("idp"),
-                clientId: "bethanyspieshophr_spa",
-                responseType: "code",//Authorization Code + PKCE
-                scopes: "openid profile email bethanyspieshophrapi country",
-                redirectUri: "http://localhost:53779/signin-oidc",
-                postLogoutRedirectUri: "http://localhost:53779/signout-callback-oidc")
-            );
+            bool useCustomOIDC = false;
 
-            services.AddAuthorizationCore(options => {
+            if (useCustomOIDC)
+            {
+                services.AddHttpClient("idp", client =>
+                {
+                    client.BaseAddress = new Uri("https://localhost:44333/"); //authority
+                })
+                .ConfigurePrimaryHttpMessageHandler(sp => (HttpMessageHandler)sp.GetService(MonoWasmHttpMessageHandlerType));
+
+                services.AddSingleton<IOpenIDConnectService>(sp =>
+                new OpenIDConnectService(
+                    sp.GetService<IHttpClientFactory>().CreateClient("idp"),
+                    clientId: "bethanyspieshophr_spa",
+                    responseType: "code",//Authorization Code + PKCE
+                    scopes: "openid profile email bethanyspieshophrapi country",
+                    redirectUri: "http://localhost:53779/signin-oidc",
+                    postLogoutRedirectUri: "http://localhost:53779/signout-callback-oidc")
+                );
+
+                services.AddScoped<TokenAuthenticationStateProvider>();
+                services.AddScoped<AuthenticationStateProvider>(provider => provider.GetRequiredService<TokenAuthenticationStateProvider>());
+            }
+            else
+            {
+                //https://docs.microsoft.com/en-us/aspnet/core/security/blazor/webassembly/standalone-with-authentication-library?view=aspnetcore-3.1
+                services.AddOidcAuthentication(options =>
+                {
+                    options.ProviderOptions.Authority = "https://localhost:44333/";
+                    options.ProviderOptions.ClientId = "bethanyspieshophr_spa";
+                    options.ProviderOptions.ResponseType = "code"; //Authorization Code + PKCE
+                    options.ProviderOptions.DefaultScopes = new List<string>() { "openid", "profile", "email", "bethanyspieshophrapi", "country" };
+                });
+            }
+
+            services.AddAuthorizationCore(options =>
+            {
                 options.AddPolicy(
                        BethanysPieShopHRM.Shared.Policies.CanManageEmployees,
                        BethanysPieShopHRM.Shared.Policies.CanManageEmployeesPolicy());
             });
-
-            services.AddScoped<TokenAuthenticationStateProvider>();
-            services.AddScoped<AuthenticationStateProvider>(provider => provider.GetRequiredService<TokenAuthenticationStateProvider>());
         }
     }
 }

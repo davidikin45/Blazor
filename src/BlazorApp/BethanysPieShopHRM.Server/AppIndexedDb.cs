@@ -1,10 +1,6 @@
 ﻿using BethanysPieShopHRM.Shared;
 using Blazor.IndexedDB.Framework;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.JSInterop;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace BethanysPieShopHRM.Server
 {

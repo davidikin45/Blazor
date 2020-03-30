@@ -100,6 +100,7 @@ public class DummyEmailSender : IEmailSender
 * Older browsers might not be supported
 * Initial app downloaded is larger
 * HttpClient, EF Core
+* Have built-in support for loading configuration data from appsettings.json and environment specific configuration data from appsettings.{environment}.json.
 
 ## Example Mixed
 ```
@@ -184,3 +185,7 @@ services.AddServerSideBlazor().AddCircuitOptions(options => { options.DetailedEr
 * [Creating Blazor Components](https://app.pluralsight.com/library/courses/creating-blazor-components/table-of-contents)
 * [Authentication and Authorization in Blazor Applications](https://app.pluralsight.com/library/courses/authentication-authorization-blazor-applications/table-of-contents)
 * [Using HttpClient to Consume APIs in .NET Core](https://app.pluralsight.com/library/courses/httpclient-consume-apis-dotnet-core/table-of-contents)
+
+## Posts
+* [Blazor WebAssembly 3.2.0 Preview 2 release now available](https://devblogs.microsoft.com/aspnet/blazor-webassembly-3-2-0-preview-2-release-now-available/?fbclid=IwAR09ld1IMqbkWg-pDcYvDcQteGRChuvIc1XAKY-jKEQ8mUorGLVPU2Z1Ki8)
+* [Blazor WebAssembly 3.2.0 Preview 3 release now available](https://devblogs.microsoft.com/aspnet/blazor-webassembly-3-2-0-preview-3-release-now-available/)
