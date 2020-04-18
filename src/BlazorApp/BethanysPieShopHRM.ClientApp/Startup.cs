@@ -21,11 +21,11 @@ namespace BethanysPieShopHRM.ClientApp
     {
         private Type MonoWasmHttpMessageHandlerType = Assembly.Load("WebAssembly.Net.Http").GetType("WebAssembly.Net.Http.HttpClient.WasmHttpMessageHandler");
 
-        public void ConfigureServices(IServiceCollection services)
+        public void ConfigureServices(IServiceCollection services, string baseAddress)
         {
             ConfigureHttpHandlers(services);
             ConfigureData(services);
-            ConfigureDefaultHttpClient(services);
+            ConfigureDefaultHttpClient(services, baseAddress);
             ConfigureApi(services);
             ConfigureAuthorization(services);
         }
@@ -55,9 +55,9 @@ namespace BethanysPieShopHRM.ClientApp
             services.AddScoped<ISpinnerService, SpinnerService>();
         }
 
-        public void ConfigureDefaultHttpClient(IServiceCollection services)
+        public void ConfigureDefaultHttpClient(IServiceCollection services, string baseAddress)
         {
-            services.AddBaseAddressHttpClient();
+            services.AddSingleton(new HttpClient { BaseAddress = new Uri(baseAddress) });
             services.Remove(services.Single(x => x.ServiceType == typeof(HttpClient)));
 
             /// --- Blazor WASM > API --- ///
@@ -107,7 +107,7 @@ namespace BethanysPieShopHRM.ClientApp
 
         public void ConfigureAuthorization(IServiceCollection services)
         {
-            bool useCustomOIDC = false;
+            bool useCustomOIDC = true;
 
             if (useCustomOIDC)
             {
