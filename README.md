@@ -489,6 +489,7 @@ public async Task<T> GetItemAsync<T>(string key)
 * [Blazor: Getting Started](https://app.pluralsight.com/library/courses/getting-started-blazor/table-of-contents)
 * [Creating Blazor Components](https://app.pluralsight.com/library/courses/creating-blazor-components/table-of-contents)
 * [Authentication and Authorization in Blazor Applications](https://app.pluralsight.com/library/courses/authentication-authorization-blazor-applications/table-of-contents)
+* [JavaScript Interop in Blazor Applications](https://app.pluralsight.com/library/courses/javascript-interop-blazor-applications)
 * [Using HttpClient to Consume APIs in .NET Core](https://app.pluralsight.com/library/courses/httpclient-consume-apis-dotnet-core/table-of-contents)
 
 ## Posts
