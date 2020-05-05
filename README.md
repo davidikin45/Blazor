@@ -164,14 +164,14 @@ services.AddServerSideBlazor().AddCircuitOptions(options => { options.DetailedEr
 ```
 
 ## Component Lifecycle Methods
-* OnInitializedAsync
-* OnParametersSetAsync
-* OnAfterRenderAsync
+* OnInitializedAsync - JSRuntime available Web Assembly/Server
+* OnParametersSetAsync - JSRuntime available Web Assembly/Server
+* OnAfterRenderAsync - JSRuntime available Web Assembly/Server/ServerPrerendered
 
 ## Input Components
 * InputText
 * InputTextArea
-* InputNumber
+* InputNumber 
 * InputSelect
 * InputData
 * InputCheckbox
@@ -179,6 +179,311 @@ services.AddServerSideBlazor().AddCircuitOptions(options => { options.DetailedEr
 ## Events
 * @onclick
 
+## Pass Object
+```
+var blazorInterop = blazorInterop || {};
+
+blazorInterop.logToConsoleTable = function (obj) {
+	console.table(obj);
+}
+```
+
+```
+@inject IJSRuntime JSRuntime
+@code{
+	protected override async Task OnInitializedAsync()
+    {
+        await JSRuntime.InvokeVoidAsync("blazorInterop.logToConsoleTable", new Employee { FirstName = "David", LastName = "Ikin"}); 
+    }
+}
+```
+
+## Return string
+```
+var blazorInterop = blazorInterop || {};
+
+blazorInterop.showPrompt = function (message, defaultValue) {
+	return prompt(message, defaultValue);
+}
+```
+
+```
+@inject IJSRuntime JSRuntime
+
+<button @onclick="ShowPrompt">show prompt</button>
+@code{
+	private string promptResult;
+	
+	private async Task ShowPrompt()
+    {
+        var result = await JSRuntime.InvokeAsync<string>("blazorInterop.showPrompt", "What's your name?", promptResult ?? ""); 
+		if(result != null)
+		{
+			promptResult = result;
+		}
+    }
+}
+```
+
+## Return Object
+```
+var blazorInterop = blazorInterop || {};
+
+blazorInterop.createEmployee = function (firstName, lastName) {
+	return { firstName, lastName, email: firstName + "@gmail.com"};
+}
+```
+
+```
+@inject IJSRuntime JSRuntime
+
+<button @onclick="GetEmployee">Get Employee</button>
+@code{
+	private Employee employee;
+	
+	private async Task GetEmployee()
+    {
+        employee = await JSRuntime.InvokeAsync<Employee>("blazorInterop.createEmployee", "David"); 
+    }
+}
+```
+
+## Reference
+* Can't be used in OnInitializedAsync or OnParametersSetAsync
+```
+var blazorInterop = blazorInterop || {};
+
+blazorInterop.focusElement = function (element) {
+	element.focus;
+}
+
+blazorInterop.focusElementById = function (id) {
+	var elemeent = document.getElementById(id);
+	if(element) element.focus();
+}
+```
+
+```
+@inject IJSRuntime JSRuntime
+<input @ref="elementToFocus" type="text" />
+@code{
+	private ElementReference elementToFocus;
+	
+	protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+		if (firstRender)
+		{
+			await JSRuntime.InvokeVoidAsync("blazorInterop.focusElement", elementToFocus); 
+		}
+    }
+}
+```
+
+## Errors
+```
+var blazorInterop = blazorInterop || {};
+
+blazorInterop.throwsError = function () {
+	throw Error("An error has occured");
+}
+```
+
+```
+@inject IJSRuntime JSRuntime
+@code{
+	private string errorMessage;
+
+	protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+		if (firstRender)
+		{
+			try
+			{
+				await JSRuntime.InvokeVoidAsync("blazorInterop.throwsError"); 	
+			}
+			catch(JSExpcetion exception)
+			{
+				errorMessage = exception.Message;
+			}
+		}
+    }
+}
+```
+
+## Call C# static method
+```
+var blazorInterop = blazorInterop || {};
+
+blazorInterop.callStaticDotNetMethod = function () {
+	var promise = DotNet.invokceMethodAsync("BethanysPieShopHRM.ServerApp", "BuildEmail", "David");
+	promise.then(email => alert(email));
+}
+```
+
+```
+@inject IJSRuntime JSRuntime
+<button onclick="blazorInterop.callStaticDotNetMethod()">Build Email</button>
+@code{
+	[JSInvokable]
+	public static string BuildEmail(string firstName)
+	{
+		return $"{firstName}@gmail.com";
+	}
+}
+```
+
+
+## Call C# instance method
+```
+var blazorInterop = blazorInterop || {};
+
+blazorInterop.callDotNetInstanceMethod = function (dotNetObjectRef) {
+	dotNetObjectRef.invokeMethodAsync("SetWindowSize", {
+		width: window.innerWidth,
+		height: window.innerHeight
+	});
+}
+```
+
+```
+@inject IJSRuntime JSRuntime
+<button @onclick="PassDotNetInstanceToJavaScript">Call It</button>
+@code{
+	private Size _windowSize;
+	
+	private async Task PassDotNetInstanceToJavaScript()
+	{
+		var dotNetObjectReference = DotNetObjectReference.Create(this);
+		await JSRuntime.InvokeVoidAsync("blazorIntercop.callDotNetInstanceMethod", dotNetObjectReference);
+	}
+
+	[JSInvokable]
+	public void SetWindowSize(Size windowSize)
+	{
+		_windowSize = windowSize;
+		StateHasChanged();
+	}
+}
+```
+
+## Call C# instance method from JS Event Handler
+```
+var blazorInterop = blazorInterop || {};
+
+blazorInterop.registerResizeHandler = function (dotNetObjectRef) {
+	function resizeHandler()
+	{
+		dotNetObjectRef.invokeMethodAsync("SetWindowSize", {
+			width: window.innerWidth,
+			height: window.innerHeight
+		});
+	};
+	
+	resizeHandler();
+	
+	window.addEventListener("resize", resizeHandler);
+}
+```
+
+```
+@inject IJSRuntime JSRuntime
+@code{
+	private Size _windowSize;
+	
+	protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+		if (firstRender)
+		{
+			var dotNetObjectReference = DotNetObjectReference.Create(this);
+			await JSRuntime.InvokeVoidAsync("blazorIntercop.registerResizeHandler", dotNetObjectReference);
+		}
+    }
+
+	[JSInvokable]
+	public void SetWindowSize(Size windowSize)
+	{
+		_windowSize = windowSize;
+		StateHasChanged();
+	}
+}
+```
+
+## Online Handler
+```
+var blazorInterop = blazorInterop || {};
+
+blazorInterop.registerOnlineHandler = function (dotNetObjectRef) {
+  function onlineHandler() {
+    dotNetObjectRef.invokeMethodAsync("SetOnlineStatus",
+      navigator.onLine);
+  };
+
+  // Set up initial values
+  onlineHandler();
+
+  // Register event handler
+  window.addEventListener("online", onlineHandler);
+  window.addEventListener("offline", onlineHandler);
+};
+```
+
+```
+@inject IJSRuntime JSRuntime
+@code{
+	private bool _isOnline;
+	
+	protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+		if (firstRender)
+		{
+			var dotNetObjectReference = DotNetObjectReference.Create(this);
+			await JSRuntime.InvokeVoidAsync("blazorIntercop.registerOnlineHandler", dotNetObjectReference);
+		}
+    }
+
+	[JSInvokable]
+	public void SetOnlineStatus(bool isOnline)
+	{
+		_isOnline = isOnline;
+		StateHasChanged();
+	}
+}
+```
+
+## Local Storage
+```
+services.AddTransient<ILocalStorageService, LocalStorageService>();
+public interface ILocalStorageService
+{
+Task SetItemAsync<T>(string key, T item);
+
+Task<T> GetItemAsync<T>(string key);
+}
+  
+public class LocalStorageService : ILocalStorageService
+{
+private readonly IJSRuntime _jsRuntime;
+
+public LocalStorageService(IJSRuntime jsRuntime)
+{
+  _jsRuntime = jsRuntime;
+}
+
+public async Task SetItemAsync<T>(string key, T item)
+{
+  await _jsRuntime.InvokeVoidAsync("localStorage.setItem",
+	key, JsonSerializer.Serialize(item));
+}
+
+public async Task<T> GetItemAsync<T>(string key)
+{
+  var json = await _jsRuntime.InvokeAsync<string>("localStorage.getItem", key);
+  return string.IsNullOrEmpty(json)
+	? default
+	: JsonSerializer.Deserialize<T>(json);
+}
+}
+```
 
 ## Pluralsight Courses
 * [Blazor: Getting Started](https://app.pluralsight.com/library/courses/getting-started-blazor/table-of-contents)

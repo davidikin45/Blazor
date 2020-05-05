@@ -7,6 +7,8 @@ using Blazor.IndexedDB.Framework;
 using EntityFrameworkCore.LocalStorage;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -19,9 +21,10 @@ namespace BethanysPieShopHRM.ClientApp
     //https://devblogs.microsoft.com/aspnet/blazor-webassembly-3-2-0-preview-2-release-now-available/?fbclid=IwAR0VTyCw88BSXTH-ZkYox3FCxYd91Xs-9KLwU3Wq6EpPUR7NGwtafqidNYg
     public class Startup
     {
+        //Not sure if this is required anymore
         private Type MonoWasmHttpMessageHandlerType = Assembly.Load("WebAssembly.Net.Http").GetType("WebAssembly.Net.Http.HttpClient.WasmHttpMessageHandler");
 
-        public void ConfigureServices(IServiceCollection services, string baseAddress)
+        public void ConfigureServices(IConfiguration configuration, IServiceCollection services, string baseAddress)
         {
             ConfigureHttpHandlers(services);
             ConfigureData(services);
@@ -57,7 +60,7 @@ namespace BethanysPieShopHRM.ClientApp
 
         public void ConfigureDefaultHttpClient(IServiceCollection services, string baseAddress)
         {
-            services.AddSingleton(new HttpClient { BaseAddress = new Uri(baseAddress) });
+            services.AddTransient(sp => new HttpClient { BaseAddress = new Uri(baseAddress) });
             services.Remove(services.Single(x => x.ServiceType == typeof(HttpClient)));
 
             /// --- Blazor WASM > API --- ///
@@ -75,9 +78,9 @@ namespace BethanysPieShopHRM.ClientApp
             /// --- Blazor WASM > Hosted Server Base Address --- ///
             services.AddHttpClient("local", (serviceProvider, client) =>
             {
-                var navigationManager = serviceProvider.GetRequiredService<NavigationManager>();
-                client.BaseAddress = new Uri(navigationManager.BaseUri);
+                client.BaseAddress = new Uri(baseAddress);
             })
+            .AddHttpMessageHandler<BaseAddressAuthorizationMessageHandler>()
             //.AddHttpMessageHandler<BlazorDisplaySpinnerAutomaticallyHttpMessageHandler>()
             .ConfigurePrimaryHttpMessageHandler(sp => (HttpMessageHandler)sp.GetService(MonoWasmHttpMessageHandlerType));
 
@@ -90,6 +93,7 @@ namespace BethanysPieShopHRM.ClientApp
             {
                 client.BaseAddress = new Uri("https://localhost:44340/");
             })
+           .AddHttpMessageHandler<AuthorizationMessageHandler>()
            .AddHttpMessageHandler<BlazorDisplaySpinnerAutomaticallyHttpMessageHandler>()
            .ConfigurePrimaryHttpMessageHandler(sp => (HttpMessageHandler)sp.GetService(MonoWasmHttpMessageHandlerType));
 
@@ -138,7 +142,11 @@ namespace BethanysPieShopHRM.ClientApp
                     options.ProviderOptions.Authority = "https://localhost:44333/";
                     options.ProviderOptions.ClientId = "bethanyspieshophr_spa";
                     options.ProviderOptions.ResponseType = "code"; //Authorization Code + PKCE
-                    options.ProviderOptions.DefaultScopes = new List<string>() { "openid", "profile", "email", "bethanyspieshophrapi", "country" };
+                    options.ProviderOptions.DefaultScopes.Add("openid");
+                    options.ProviderOptions.DefaultScopes.Add("profile");
+                    options.ProviderOptions.DefaultScopes.Add("email");
+                    options.ProviderOptions.DefaultScopes.Add("bethanyspieshophrapi");
+                    options.ProviderOptions.DefaultScopes.Add("country");
                 });
             }
 
