@@ -45,8 +45,8 @@ namespace Marvin.IDP
                     RequireClientSecret = false,
                     AccessTokenType = AccessTokenType.Jwt,
                     AllowedScopes = { IdentityServerConstants.StandardScopes.OpenId, IdentityServerConstants.StandardScopes.Profile, IdentityServerConstants.StandardScopes.Email, "roles", "country" , "bethanyspieshophrapi" },
-                    RedirectUris = { "http://localhost:53779/signin-oidc" },
-                    PostLogoutRedirectUris = { "http://localhost:53779/signout-callback-oidc" },
+                    RedirectUris = { "http://localhost:53779/signin-oidc" , "http://localhost:53779/authentication/login-callback" },
+                    PostLogoutRedirectUris = { "http://localhost:53779/signout-callback-oidc", "http://localhost:53779/authentication/signout-callback" },
                     AllowedCorsOrigins = { "http://localhost:53779" }, //CORS for IDP
                     RequireConsent = false, //Consent screen,
                     AllowOfflineAccess = false, //Refresh Tokens

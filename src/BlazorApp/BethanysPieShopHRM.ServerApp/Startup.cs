@@ -35,8 +35,8 @@ namespace BethanysPieShopHRM.ServerApp
         public void ConfigureServices(IServiceCollection services)
         {
             //Blazor.IndexedDB.Framework
-            services.AddSingleton<IIndexedDbFactory, IndexedDbFactory>();
-            services.AddSingleton<AppIndexedDb>(sp => sp.GetRequiredService<IIndexedDbFactory>().Create<AppIndexedDb>().Result);
+            //services.AddSingleton<IIndexedDbFactory, IndexedDbFactory>();
+            //services.AddSingleton<AppIndexedDb>(sp => sp.GetRequiredService<IIndexedDbFactory>().Create<AppIndexedDb>().Result);
 
             services.AddDbContext<AppDbContext>(options =>
             {
@@ -100,6 +100,7 @@ namespace BethanysPieShopHRM.ServerApp
                 client.BaseAddress = new Uri("https://localhost:44340/");
             })
            .AddHttpMessageHandler<BearerHttpHandler>()
+           .AddHttpMessageHandler<BlazorDisplaySpinnerAutomaticallyHttpMessageHandler>()
            .ConfigurePrimaryHttpMessageHandler(handler => new HttpClientHandler()
            {
                AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip | DecompressionMethods.Brotli
@@ -112,6 +113,7 @@ namespace BethanysPieShopHRM.ServerApp
             services.AddScoped<IBenefitDataService>(sp => new BenefitDataService(sp.GetService<IHttpClientFactory>().CreateClient("api")));
 
             //Spinner
+            services.AddTransient<BlazorDisplaySpinnerAutomaticallyHttpMessageHandler>();
             services.AddScoped<ISpinnerService, SpinnerService>();
         }
 

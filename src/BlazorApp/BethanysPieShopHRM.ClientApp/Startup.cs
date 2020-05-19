@@ -8,6 +8,7 @@ using EntityFrameworkCore.LocalStorage;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -22,7 +23,7 @@ namespace BethanysPieShopHRM.ClientApp
     public class Startup
     {
         //Not sure if this is required anymore
-        private Type MonoWasmHttpMessageHandlerType = Assembly.Load("WebAssembly.Net.Http").GetType("WebAssembly.Net.Http.HttpClient.WasmHttpMessageHandler");
+        //private Type MonoWasmHttpMessageHandlerType = Assembly.Load("WebAssembly.Net.Http").GetType("WebAssembly.Net.Http.HttpClient.WasmHttpMessageHandler");
 
         public void ConfigureServices(IConfiguration configuration, IServiceCollection services, string baseAddress)
         {
@@ -36,8 +37,8 @@ namespace BethanysPieShopHRM.ClientApp
         public void ConfigureData(IServiceCollection services)
         {
             //Blazor.IndexedDB.Framework
-            services.AddSingleton<IIndexedDbFactory, IndexedDbFactory>();
-            services.AddSingleton<AppIndexedDb>(sp => sp.GetRequiredService<IIndexedDbFactory>().Create<AppIndexedDb>().Result);
+            //services.AddSingleton<IIndexedDbFactory, IndexedDbFactory>();
+            //services.AddSingleton<AppIndexedDb>(sp => sp.GetRequiredService<IIndexedDbFactory>().Create<AppIndexedDb>().Result);
 
             services.AddDbContext<AppDbContext>(options =>
             {
@@ -46,16 +47,16 @@ namespace BethanysPieShopHRM.ClientApp
 
             //services.AddDbContext<AppDbContext>(options =>
             //{
-            //    options.UseInMemoryDatabase(databaseName: "db").ForBlazorWebAssembly();
+            //    options.UseInMemoryDatabase(databaseName: "db");
             //});
         }
 
         public void ConfigureHttpHandlers(IServiceCollection services)
         {
             services.AddScoped<BlazorDisplaySpinnerAutomaticallyHttpMessageHandler>();
-            services.AddScoped(MonoWasmHttpMessageHandlerType);
+            //services.AddScoped(MonoWasmHttpMessageHandlerType);
 
-            services.AddScoped<ISpinnerService, SpinnerService>();
+            services.AddSingleton<ISpinnerService, SpinnerService>();
         }
 
         public void ConfigureDefaultHttpClient(IServiceCollection services, string baseAddress)
@@ -81,8 +82,8 @@ namespace BethanysPieShopHRM.ClientApp
                 client.BaseAddress = new Uri(baseAddress);
             })
             .AddHttpMessageHandler<BaseAddressAuthorizationMessageHandler>()
-            //.AddHttpMessageHandler<BlazorDisplaySpinnerAutomaticallyHttpMessageHandler>()
-            .ConfigurePrimaryHttpMessageHandler(sp => (HttpMessageHandler)sp.GetService(MonoWasmHttpMessageHandlerType));
+            .AddHttpMessageHandler<BlazorDisplaySpinnerAutomaticallyHttpMessageHandler>();
+            //.ConfigurePrimaryHttpMessageHandler(sp => (HttpMessageHandler)sp.GetService(MonoWasmHttpMessageHandlerType));
 
             services.AddTransient<HttpClient>(sp => sp.GetService<IHttpClientFactory>().CreateClient("local"));
         }
@@ -93,9 +94,9 @@ namespace BethanysPieShopHRM.ClientApp
             {
                 client.BaseAddress = new Uri("https://localhost:44340/");
             })
-           .AddHttpMessageHandler<AuthorizationMessageHandler>()
-           .AddHttpMessageHandler<BlazorDisplaySpinnerAutomaticallyHttpMessageHandler>()
-           .ConfigurePrimaryHttpMessageHandler(sp => (HttpMessageHandler)sp.GetService(MonoWasmHttpMessageHandlerType));
+           .AddHttpMessageHandler(sp => sp.GetRequiredService<AuthorizationMessageHandler>().ConfigureHandler(new[] { "https://localhost:44340/" }))
+           .AddHttpMessageHandler<BlazorDisplaySpinnerAutomaticallyHttpMessageHandler>();
+           //.ConfigurePrimaryHttpMessageHandler(sp => (HttpMessageHandler)sp.GetService(MonoWasmHttpMessageHandlerType));
 
             //services.AddScoped<IEmployeeDataService, MockEmployeeDataService>();
             //services.AddScoped<IEmployeeDataService, EmployeeDataService>();
@@ -111,15 +112,15 @@ namespace BethanysPieShopHRM.ClientApp
 
         public void ConfigureAuthorization(IServiceCollection services)
         {
-            bool useCustomOIDC = true;
+            bool useCustomOIDC = false;
 
             if (useCustomOIDC)
             {
                 services.AddHttpClient("idp", client =>
                 {
                     client.BaseAddress = new Uri("https://localhost:44333/"); //authority
-                })
-                .ConfigurePrimaryHttpMessageHandler(sp => (HttpMessageHandler)sp.GetService(MonoWasmHttpMessageHandlerType));
+                });
+                //.ConfigurePrimaryHttpMessageHandler(sp => (HttpMessageHandler)sp.GetService(MonoWasmHttpMessageHandlerType));
 
                 services.AddSingleton<IOpenIDConnectService>(sp =>
                 new OpenIDConnectService(
@@ -136,6 +137,7 @@ namespace BethanysPieShopHRM.ClientApp
             }
             else
             {
+                //https://devblogs.microsoft.com/aspnet/blazor-webassembly-3-2-0-preview-5-release-now-available/
                 //https://docs.microsoft.com/en-us/aspnet/core/security/blazor/webassembly/standalone-with-authentication-library?view=aspnetcore-3.1
                 services.AddOidcAuthentication(options =>
                 {

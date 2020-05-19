@@ -1,8 +1,6 @@
 ﻿using BethanysPieShopHRM.Server.Services;
 using Microsoft.AspNetCore.Components;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace BethanysPieShopHRM.Server.Components
 {
@@ -27,8 +25,8 @@ namespace BethanysPieShopHRM.Server.Components
 
         public void HideSpinner()
         {
-            IsVisible = false;
-            StateHasChanged();
+           IsVisible = false;
+           StateHasChanged();
         }
     }
 }
