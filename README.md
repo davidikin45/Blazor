@@ -32,7 +32,7 @@
 
 ## Client-side DI
 * Transient is scoped to the lifetime of the Blazor component which only occurs on navigation. Use IServiceScopeFactory for true transient.
-* Scoped is per application instance.
+* Scoped is per application instance. Even thooigh Scoped and Singleton behave the same on ClientSide it's best to use Scoped for user dependencies to enable switching to Server-side model.
 * Singleton is per application instance.
 
 ## Server-side security
